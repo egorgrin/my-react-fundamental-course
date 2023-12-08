@@ -1,46 +1,48 @@
 import './styles/App.css';
-import MyInput from './components/UI/input/MyInput';
-import {useState} from 'react';
-import MyButton from './components/UI/button/MyButton';
 import PostList from './components/PostList';
+import PostForm from './components/PostForm';
+import {useState} from 'react';
+import MySelect from './components/UI/select/MySelect';
 
 function App() {
 
-  const [posts, setPosts] = useState([{id: 1, title: 'JS 1', body: 'Decr'},]);
+  const [posts, setPosts] = useState([{id: 1, title: 'JS 1', body: 'Decr'}]);
 
-  const [post, setPost] = useState(
-      {
-        title: '',
-        body: '',
-      },
-  );
+  const createPost = (newPost) => {
+    setPosts([...posts, newPost]);
+  };
 
-  const addNewPost = (e) => {
-    e.preventDefault();
-    setPosts([...posts, {...post, id: Date.now()}]);
-    setPost({title: '', body: ''});
+  const deletePost = (post) => {
+    setPosts(posts.filter(p => p.id !== post.id));
   };
 
   return (
       <div className={'App'}>
-        <form>
-          <MyInput
-              value={post.title}
-              onChange={e => setPost({...post, title: e.target.value})}
-              type={'text'}
-              placeholder={'Post Name'}
-          />
-          <MyInput
-              value={post.body}
-              onChange={e => setPost({...post, body: e.target.value})}
-              type={'text'}
-              placeholder="Content"
-          />
 
-          <MyButton onClick={addNewPost}>Create Post</MyButton>
-        </form>
+        <PostForm createPost={createPost}/>
 
-        <PostList posts={posts} title={'Js posts'}/>
+        <hr style={{margin: '20px 0'}}/>
+
+        <MySelect
+            defaultVal={'Sort By'}
+            options={[
+              {value: 'title', name: 'By name'},
+              {value: 'body', name: 'By desc'},
+            ]}
+        />
+
+        {posts.length !== 0
+            ? <PostList deletePost={deletePost} posts={posts} title={'Js posts'}/>
+            : <h1 style={{
+              textAlign: 'center',
+              marginTop: '50px',
+              marginBottom: '50px',
+            }}>
+              No posts yet!
+            </h1>
+
+        }
+
 
       </div>
   );
