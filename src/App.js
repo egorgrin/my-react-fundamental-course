@@ -4,6 +4,7 @@ import PostForm from './components/PostForm';
 import {useEffect, useMemo, useRef, useState} from 'react';
 import PostFilter from './components/PostFilter';
 import Modal from './components/UI/modal/Modal';
+import MyButton from './components/UI/button/MyButton';
 
 function App() {
   // Renders counter
@@ -11,7 +12,7 @@ function App() {
 
   useEffect(() => {
     render.current += 1;
-    console.log(`${render.current} render`);
+    // console.log(`${render.current} render`);
   });
 
   const [posts, setPosts] = useState([
@@ -27,8 +28,10 @@ function App() {
       },
   );
 
+  const [modalVisibility, setModalVisibility] = useState(false);
+
   const sortedPosts = useMemo(() => {
-    console.log('sorted');
+    // console.log('sorted');
     if (filter.selectedSort) {
       return [...posts].sort((a, b) => a[filter.selectedSort].localeCompare(b[filter.selectedSort]));
     }
@@ -41,6 +44,7 @@ function App() {
 
   const createPost = (newPost) => {
     setPosts([...posts, newPost]);
+    setModalVisibility(false);
   };
 
   const deletePost = (post) => {
@@ -48,9 +52,17 @@ function App() {
   };
 
   return (
-      <div className={'App'}>
-
-        <Modal>
+      <div
+          className={'App'}
+          style={{padding: '30px 0'}}
+      >
+        <MyButton onClick={() => setModalVisibility(true)}>
+          Create post
+        </MyButton>
+        <Modal
+            visibility={modalVisibility}
+            setVisibility={setModalVisibility}
+        >
           <PostForm createPost={createPost}/>
         </Modal>
 
