@@ -6,7 +6,6 @@ import PostFilter from './components/PostFilter';
 import Modal from './components/UI/modal/Modal';
 import MyButton from './components/UI/button/MyButton';
 import {usePosts} from './hooks/usePosts';
-import axios from 'axios';
 import PostService from './API/PostService';
 
 function App() {
@@ -17,6 +16,8 @@ function App() {
     render.current += 1;
     // console.log(`${render.current} render`);
   });
+
+  /* ---------State---------- */
 
   const [posts, setPosts] = useState([]);
 
@@ -31,8 +32,13 @@ function App() {
 
   const sortedSearchResults = usePosts(posts, filter.selectedSort, filter.searchQuery);
 
-  const [postsLoadingStatus, setPostsLoadingStatus] = useState(false);
+  const [postsLoadingStatus, setPostsLoadingStatus] = useState({
+    fetchAttempted: false,
+    loading: false,
+  });
 
+
+  /* ---------Functions---------- */
 
   const createPost = (newPost) => {
     setPosts([...posts, newPost]);
@@ -43,17 +49,18 @@ function App() {
     setPosts(posts.filter(p => p.id !== post.id));
   };
 
-  async function fetchPosts() {
-    setPostsLoadingStatus(true);
-    const posts = await PostService.fetchAll();
-    setPosts(posts);
-    setPostsLoadingStatus(false);
+  function fetchPosts() {
+    setPostsLoadingStatus({...postsLoadingStatus, loading: true});
+
+    setTimeout(async () => {
+      setPosts(await PostService.fetchAll());
+      setPostsLoadingStatus({fetchAttempted: true, loading: false});
+    }, 1000);
+
   }
 
   useEffect(() => {
-    fetchPosts().catch((error) => {
-      console.error(error);
-    });
+    fetchPosts();
   }, []);
 
   return (
@@ -82,7 +89,7 @@ function App() {
             deletePost={deletePost}
             posts={sortedSearchResults}
             title={'Posts'}
-            loading={postsLoadingStatus}
+            postsLoadingStatus={postsLoadingStatus}
         />
 
       </div>
