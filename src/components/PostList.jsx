@@ -3,18 +3,20 @@ import PostItem from './PostItem';
 import {CSSTransition, TransitionGroup} from 'react-transition-group';
 import Loader from './UI/loader/Loader';
 
-const PostList = ({posts, title, deletePost, postsLoadingStatus}) => {
+const PostList = ({posts, title, deletePost, loadingStatus, error}) => {
 
   return (
       <div>
         <h1 style={{display: 'flex', justifyContent: 'center', marginTop: '50px'}}>
-          {postsLoadingStatus.fetchAttempted
-              ? posts.length
-                  ? title
-                  : postsLoadingStatus.loading
-                      ? <Loader/>
-                      : 'No posts found!'
-              : <Loader/>
+          {error
+              ? error
+              : loadingStatus.fetchAttempted
+                  ? posts.length
+                      ? title
+                      : loadingStatus.loading
+                          ? <Loader/>
+                          : 'No posts found!'
+                  : <Loader/>
           }
 
         </h1>
@@ -23,7 +25,7 @@ const PostList = ({posts, title, deletePost, postsLoadingStatus}) => {
           {posts.map((post, index) =>
               <CSSTransition
                   key={post.id}
-                  timeout={300}
+                  timeout={500}
                   classNames="post"
               >
                 <PostItem

@@ -1,12 +1,13 @@
 import './styles/App.css';
 import PostList from './components/PostList';
 import PostForm from './components/PostForm';
-import {useEffect, useMemo, useRef, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import PostFilter from './components/PostFilter';
 import Modal from './components/UI/modal/Modal';
 import MyButton from './components/UI/button/MyButton';
 import {usePosts} from './hooks/usePosts';
 import PostService from './API/PostService';
+import {useFetching} from './hooks/useFetching';
 
 function App() {
   // Renders counter
@@ -32,10 +33,9 @@ function App() {
 
   const sortedSearchResults = usePosts(posts, filter.selectedSort, filter.searchQuery);
 
-  const [postsLoadingStatus, setPostsLoadingStatus] = useState({
-    fetchAttempted: false,
-    loading: false,
-  });
+  const [fetchPosts, postsLoadingStatus, fetchPostsError] = useFetching(async () => {
+    setPosts(await PostService.fetchAll());
+  })
 
 
   /* ---------Functions---------- */
@@ -48,16 +48,6 @@ function App() {
   const deletePost = (post) => {
     setPosts(posts.filter(p => p.id !== post.id));
   };
-
-  function fetchPosts() {
-    setPostsLoadingStatus({...postsLoadingStatus, loading: true});
-
-    setTimeout(async () => {
-      setPosts(await PostService.fetchAll());
-      setPostsLoadingStatus({fetchAttempted: true, loading: false});
-    }, 1000);
-
-  }
 
   useEffect(() => {
     fetchPosts();
@@ -89,7 +79,8 @@ function App() {
             deletePost={deletePost}
             posts={sortedSearchResults}
             title={'Posts'}
-            postsLoadingStatus={postsLoadingStatus}
+            loadingStatus={postsLoadingStatus}
+            error={fetchPostsError}
         />
 
       </div>
