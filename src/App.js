@@ -5,6 +5,7 @@ import {useEffect, useMemo, useRef, useState} from 'react';
 import PostFilter from './components/PostFilter';
 import Modal from './components/UI/modal/Modal';
 import MyButton from './components/UI/button/MyButton';
+import {usePosts} from './hooks/usePosts';
 
 function App() {
   // Renders counter
@@ -30,17 +31,8 @@ function App() {
 
   const [modalVisibility, setModalVisibility] = useState(false);
 
-  const sortedPosts = useMemo(() => {
-    // console.log('sorted');
-    if (filter.selectedSort) {
-      return [...posts].sort((a, b) => a[filter.selectedSort].localeCompare(b[filter.selectedSort]));
-    }
-    return posts;
-  }, [posts, filter.selectedSort]);
+  const sortedSearchResults = usePosts(posts, filter.selectedSort, filter.searchQuery);
 
-  const sortedSearchResults = useMemo(() => {
-    return sortedPosts.filter(post => post.title.toLowerCase().includes(filter.searchQuery));
-  }, [filter.searchQuery, sortedPosts]);
 
   const createPost = (newPost) => {
     setPosts([...posts, newPost]);
