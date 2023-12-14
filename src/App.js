@@ -6,6 +6,8 @@ import PostFilter from './components/PostFilter';
 import Modal from './components/UI/modal/Modal';
 import MyButton from './components/UI/button/MyButton';
 import {usePosts} from './hooks/usePosts';
+import axios from 'axios';
+import PostService from './API/PostService';
 
 function App() {
   // Renders counter
@@ -16,11 +18,7 @@ function App() {
     // console.log(`${render.current} render`);
   });
 
-  const [posts, setPosts] = useState([
-    {id: 1, title: 'AAA', body: 'CCC'},
-    {id: 2, title: 'BBB', body: 'BBB'},
-    {id: 3, title: 'CCC', body: 'AAA'},
-  ]);
+  const [posts, setPosts] = useState([]);
 
   const [filter, setFilter] = useState(
       {
@@ -33,6 +31,8 @@ function App() {
 
   const sortedSearchResults = usePosts(posts, filter.selectedSort, filter.searchQuery);
 
+  const [postsLoadingStatus, setPostsLoadingStatus] = useState(false);
+
 
   const createPost = (newPost) => {
     setPosts([...posts, newPost]);
@@ -42,6 +42,19 @@ function App() {
   const deletePost = (post) => {
     setPosts(posts.filter(p => p.id !== post.id));
   };
+
+  async function fetchPosts() {
+    setPostsLoadingStatus(true);
+    const posts = await PostService.fetchAll();
+    setPosts(posts);
+    setPostsLoadingStatus(false);
+  }
+
+  useEffect(() => {
+    fetchPosts().catch((error) => {
+      console.error(error);
+    });
+  }, []);
 
   return (
       <div
@@ -68,7 +81,8 @@ function App() {
         <PostList
             deletePost={deletePost}
             posts={sortedSearchResults}
-            title={'Js posts'}
+            title={'Posts'}
+            loading={postsLoadingStatus}
         />
 
       </div>

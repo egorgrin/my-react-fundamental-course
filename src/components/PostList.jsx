@@ -2,11 +2,16 @@ import React from 'react';
 import PostItem from './PostItem';
 import {CSSTransition, TransitionGroup} from 'react-transition-group';
 
-const PostList = ({posts, title, deletePost}) => {
+const PostList = ({posts, title, deletePost, loading}) => {
   return (
       <div>
         <h1 style={{textAlign: 'center'}}>
-          {!posts.length ? title : 'No posts found!'}
+          {posts.length
+              ? title
+              : loading
+                  ? 'Loading...'
+                  : 'No posts found!'
+          }
         </h1>
 
         <TransitionGroup>
