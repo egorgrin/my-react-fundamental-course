@@ -1,13 +1,16 @@
 import './styles/App.css';
 import PostList from './components/PostList';
 import PostForm from './components/PostForm';
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import PostFilter from './components/PostFilter';
 import Modal from './components/UI/modal/Modal';
 import MyButton from './components/UI/button/MyButton';
 import {usePosts} from './hooks/usePosts';
 import PostService from './API/PostService';
 import {useFetching} from './hooks/useFetching';
+import {getPagesCount} from './utils/pages';
+import Pagination from './components/UI/pagination/pagination';
+import {usePagesArray} from './hooks/usePagesArray';
 
 function App() {
   // Renders counter
@@ -31,14 +34,22 @@ function App() {
 
   const [modalVisibility, setModalVisibility] = useState(false);
 
+  const [totalPages, setTotalPages] = useState(0);
+  const [postsLimit, setPostsLimit] = useState(10);
+  const [page, setPage] = useState(1);
+  let pagesArray = usePagesArray(totalPages);
+
+  /* ---------Functions---------- */
+
+
   const sortedSearchResults = usePosts(posts, filter.selectedSort, filter.searchQuery);
 
   const [fetchPosts, postsLoadingStatus, fetchPostsError] = useFetching(async () => {
-    setPosts(await PostService.fetchAll());
-  })
-
-
-  /* ---------Functions---------- */
+    const response = await PostService.fetchAll(postsLimit, page);
+    setPosts(response.data);
+    const totalPostsCount = response.headers['x-total-count'];
+    setTotalPages(getPagesCount(totalPostsCount, postsLimit));
+  });
 
   const createPost = (newPost) => {
     setPosts([...posts, newPost]);
@@ -49,9 +60,13 @@ function App() {
     setPosts(posts.filter(p => p.id !== post.id));
   };
 
+  const changePage = (pageNumber) => {
+    setPage(pageNumber);
+  };
+
   useEffect(() => {
     fetchPosts();
-  }, []);
+  }, [page]);
 
   return (
       <div
@@ -81,6 +96,12 @@ function App() {
             title={'Posts'}
             loadingStatus={postsLoadingStatus}
             error={fetchPostsError}
+        />
+
+        <Pagination
+            page={page}
+            pagesArray={pagesArray}
+            changePage={changePage}
         />
 
       </div>

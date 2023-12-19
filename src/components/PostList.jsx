@@ -22,7 +22,7 @@ const PostList = ({posts, title, deletePost, loadingStatus, error}) => {
         </h1>
 
         <TransitionGroup>
-          {posts.map((post, index) =>
+          {posts.map((post) =>
               <CSSTransition
                   key={post.id}
                   timeout={500}
@@ -30,7 +30,7 @@ const PostList = ({posts, title, deletePost, loadingStatus, error}) => {
               >
                 <PostItem
                     deletePost={deletePost}
-                    numer={index + 1}
+                    numer={post.id}
                     post={post}
                 />
               </CSSTransition>,
